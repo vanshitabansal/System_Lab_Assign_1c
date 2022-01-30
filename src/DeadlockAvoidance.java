@@ -5,16 +5,22 @@ import java.util.Scanner;
 import java.util.concurrent.Semaphore;
 
 public class DeadlockAvoidance {
+
+    //Declaring variables and arrays
     static ArrayList<Integer> available = new ArrayList<>();
     static Semaphore mutex, mutex2;
     static int noOfResources;
     static int noOfProcesses;
     static int count = 0;
     public static void main(String[] args) throws InterruptedException, FileNotFoundException {
+
+        //Reading contents from file "input.txt"
         File file = new File("input.txt");
         Scanner sc = new Scanner(file);
-        int t = 1;
+
         while (sc.hasNextLine()) {
+
+            //Storing input in arrays
             String str = sc.nextLine();
             String[] splited1 = str.split(" ");
             if(splited1.length!=2)
@@ -22,14 +28,22 @@ public class DeadlockAvoidance {
             int n = Integer.parseInt(splited1[0]);
             int m = Integer.parseInt(splited1[1]);
             int available_resources[] = new int[m];
+            int current_allocation[][] = new int[n][m];
+            int max_allocation[][] = new int[n][m];
+            int need[][] = new int[n][m];
+            boolean executed[] = new boolean[n];
+            ArrayList<Integer> safe_sequence = new ArrayList<>();
+            int process = -1,flag = 1,c = 0;
+
             str = sc.nextLine();
             String[] splited2 = str.split(" ");
+
+            //Filling available_resources array
             for (int i = 0; i < m; i++) {
                 available_resources[i] = Integer.parseInt(splited2[i]);
             }
-            int current_allocation[][] = new int[n][m];
-            int max_allocation[][] = new int[n][m];
-            int c = 0;
+
+            //Filling current_allocation array
             while (c < n) {
                 str = sc.nextLine();
                 String[] splited3 = str.split(" ");
@@ -38,6 +52,8 @@ public class DeadlockAvoidance {
                 }
                 c++;
             }
+
+            //Filling max_allocation array
             c = 0;
             while (c < n) {
                 str = sc.nextLine();
@@ -48,16 +64,14 @@ public class DeadlockAvoidance {
                 c++;
             }
 
-
-            int need[][] = new int[n][m];
-
-            boolean executed[] = new boolean[n];
+            //Calculating current need of all the processes
             for (int i = 0; i < n; i++) {
                 for (int j = 0; j < m; j++) {
                     need[i][j] = max_allocation[i][j] - current_allocation[i][j];
-                    //available_resources[j] += current_allocation[i][j];
                 }
             }
+
+            //Printing Need array on screen
             System.out.println("-------Need of Resources--------");
             for (int i = 0; i < n; i++) {
                 for (int j = 0; j < m; j++) {
@@ -65,20 +79,19 @@ public class DeadlockAvoidance {
                 }
                 System.out.println();
             }
-            System.out.println("-------Available Resources--------");
 
             for (int i = 0; i < m; i++) {
-                System.out.print(available_resources[i] + " ");
                 available.add(available_resources[i]);
             }
-            System.out.println();
-            ArrayList<Integer> safe_sequence = new ArrayList<>();
-            int process = -1;
-            int flag = 1;
+
+            //checking whether safe sequence exists or not
             while (true) {
-                //System.out.println("ji");
+
+                //iteratng over the requirements of all processes
                 for (int i = 0; i < n; i++) {
                     process = -1;
+
+                    //if current process i is not executed then check
                     if (!executed[i]) {
                         flag = 1;
                         for (int j = 0; j < m; j++) {
@@ -89,9 +102,15 @@ public class DeadlockAvoidance {
                                 break;
                             }
                         }
+
+                        //flag == 1 means count of all the needed resources are less than available resources
                         if (flag == 1 && process != -1) {
+
+                            //So add this process to safe sequence and set executed as true
                             safe_sequence.add(process);
                             executed[process] = true;
+
+                            //Make the current allocated resources available to other processes now
                             for (int k = 0; k < m; k++) {
                                 available_resources[k] += current_allocation[process][k];
                             }
@@ -99,6 +118,8 @@ public class DeadlockAvoidance {
                         }
                     }
                 }
+
+                //if no process has all the needed resources are less than available resources then safe seq is not possible
                 if (process != -1) {
                     System.out.println("No safe sequence possible :(");
                     return;
@@ -106,6 +127,8 @@ public class DeadlockAvoidance {
                 if (safe_sequence.size() == n)
                     break;
             }
+
+            //Found one of the safe sequence (Printing..)
             System.out.println("-------Safe Sequence Found--------");
             for (int i = 0; i < safe_sequence.size() - 1; i++) {
                 System.out.print("P" + safe_sequence.get(i) + " -> ");
@@ -113,7 +136,7 @@ public class DeadlockAvoidance {
             System.out.print("P" + safe_sequence.get(safe_sequence.size() - 1));
             System.out.println();
 
-            //Threading
+            //Threading to simulate the execution
             noOfProcesses = n;
             noOfResources = m;
             mutex = new Semaphore(1);
@@ -128,7 +151,6 @@ public class DeadlockAvoidance {
                 }
                 MyThread processThread = new MyThread(allocOfProcess, needOfProcess, i);
                 processThread.start();
-                //processThread.join();
             }
             boolean readyToExit = false;
             while (!readyToExit) {
