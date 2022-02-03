@@ -142,6 +142,7 @@ public class DeadlockAvoidance {
             mutex = new Semaphore(1);
             mutex2 = new Semaphore(1);
             System.out.println("\nExecuting Processes...\n");
+            // Creation of threads
             for (int i = 0; i < noOfProcesses; i++) {
                 ArrayList<Integer> needOfProcess = new ArrayList<>();
                 ArrayList<Integer> allocOfProcess = new ArrayList<>();
@@ -150,15 +151,17 @@ public class DeadlockAvoidance {
                     allocOfProcess.add(current_allocation[i][j]);
                 }
                 MyThread processThread = new MyThread(allocOfProcess, needOfProcess, i);
-                processThread.start();
+                processThread.start(); // starting newly created threads
             }
             boolean readyToExit = false;
+            // wait till all the processes have completed execution
             while (!readyToExit) {
                 mutex2.acquire();
                 if (count == noOfProcesses)
                     readyToExit = true;
                 mutex2.release();
             }
+            // exit the program
             System.out.println("All Processes Finished");
         }
     }
