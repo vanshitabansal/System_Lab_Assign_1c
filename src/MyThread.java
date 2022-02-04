@@ -38,7 +38,6 @@ public class MyThread extends Thread{
                     System.out.println();
 
                     System.out.println("\tResource Allocated!");
-                    System.out.println("\tResource Released!");
 
                     // release the resources held by the thread and add them to available resources
                     for(int i=0;i<DeadlockAvoidance.noOfResources;i++){
@@ -46,6 +45,7 @@ public class MyThread extends Thread{
                         DeadlockAvoidance.available.set(i, newAvail);
                         alloc.set(i, 0);
                     }
+                    System.out.println("\tResource Released!");
 
                     System.out.print("\tNow Available :   ");
                     for(int i=0;i<DeadlockAvoidance.noOfResources;i++)
