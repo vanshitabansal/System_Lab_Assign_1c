@@ -74,6 +74,7 @@ public class DeadlockAvoidance {
             //Printing Need array on screen
             System.out.println("-------Need of Resources--------");
             for (int i = 0; i < n; i++) {
+                System.out.print("P"+i+":\t");
                 for (int j = 0; j < m; j++) {
                     System.out.print(need[i][j] + " ");
                 }
